@@ -38,10 +38,16 @@ public class {{classname}}Controller implements {{classname}} {
     }{{/isDelegate}}
 
 {{^jdk8-no-delegate}}{{#operation}}
-    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
+    public {{#async}}Callable<{{/async}}ResponseEntity<{{#examples}}String{{/examples}}{{^examples}}{{>returnTypes}}{{/examples}}>{{#async}}>{{/async}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
         {{/hasMore}}{{/allParams}}) {
         // do some magic!{{^isDelegate}}{{^async}}
-        return new ResponseEntity<{{>returnTypes}}>(HttpStatus.OK);{{/async}}{{#async}}
+        {{#examples}}
+            return new ResponseEntity<String>({{{example}}}, HttpStatus.OK);
+        {{/examples}}
+        {{^examples}}
+            return new ResponseEntity<{{>returnTypes}}>(HttpStatus.OK);
+        {{/examples}}
+        {{/async}}{{#async}}
         return new Callable<ResponseEntity<{{>returnTypes}}>>() {
             @Override
             public ResponseEntity<{{>returnTypes}}> call() throws Exception {

@@ -1,13 +1,19 @@
 package io.swagger.codegen.languages;
 
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
 import io.swagger.codegen.*;
-import io.swagger.codegen.languages.features.BeanValidationFeatures;
 import io.swagger.models.Operation;
-
-import java.util.*;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 
 public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
 
@@ -109,6 +115,20 @@ public class JavaJerseyServerCodegen extends AbstractJavaJAXRSServerCodegen {
         writeOptional(outputFolder, new SupportingFile("bootstrap.mustache", (implFolder + '/' + apiPackage).replace(".", "/"), "Bootstrap.java"));
         writeOptional(outputFolder, new SupportingFile("web.mustache", ("src/main/webapp/WEB-INF"), "web.xml"));
         supportingFiles.add(new SupportingFile("StringUtil.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "StringUtil.java"));
+
+        // add lambda for mustache templates
+        additionalProperties.put("lambdaEscapeDoubleQuote", new Mustache.Lambda() {
+            @Override
+            public void execute(Template.Fragment fragment, Writer writer) throws IOException {
+                writer.write(fragment.execute().replaceAll("\"", Matcher.quoteReplacement("\\\"")));
+            }
+        });
+        additionalProperties.put("lambdaRemoveLineBreak", new Mustache.Lambda() {
+            @Override
+            public void execute(Template.Fragment fragment, Writer writer) throws IOException {
+                writer.write(fragment.execute().replaceAll("\\r|\\n", ""));
+            }
+        });
     }
 
 
